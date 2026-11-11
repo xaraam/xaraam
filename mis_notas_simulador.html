@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b65b5">
+<title>Mis Notas | Simulador académico</title>
+<style>
+:root{--blue:#0878cf;--navy:#103b63;--bg:#f3f7fc;--card:#fff;--text:#172b42;--muted:#65788d;--line:#dce6f0;--green:#13865b;--shadow:0 10px 30px rgba(22,57,91,.08)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:linear-gradient(120deg,#075ca8,#0b8bd8);color:white;padding:28px 18px 34px}
+.wrap{max-width:1050px;margin:auto;padding:0 16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:800;letter-spacing:.2px;font-size:19px}.tag{font-size:12px;background:#ffffff25;border:1px solid #ffffff50;padding:5px 10px;border-radius:99px}
+h1{font-size:clamp(26px,5vw,38px);line-height:1.12;margin:25px 0 8px}header p{margin:0;color:#e3f2ff;max-width:650px}
+main{padding:22px 0 50px}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:-4px;margin-bottom:18px}
+.stat,.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.stat{padding:16px}.stat small{color:var(--muted);display:block}.stat strong{font-size:27px;display:block;margin-top:3px;letter-spacing:-.6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.panel{padding:18px;margin-bottom:15px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+h2{font-size:17px;margin:0}.weight{font-size:12px;font-weight:700;color:var(--blue);background:#eaf5ff;padding:5px 9px;border-radius:99px}
+.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.field label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px;font-weight:650}
+input{width:100%;min-width:0;padding:10px 9px;border:1px solid #cbd8e5;border-radius:9px;background:#fff;color:var(--text);font:inherit;font-variant-numeric:tabular-nums;outline:none}
+input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #0878cf1c}
+.panel-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:12px;margin-top:14px;color:var(--muted);font-size:13px}.panel-foot b{font-size:18px;color:var(--text)}
+.result{background:#102f4c;color:white;border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+.result h2{color:#fff}.big{font-size:42px;font-weight:850;line-height:1.15;margin:8px 0}.result p{color:#c9d9e8;margin:0;font-size:13px}
+.resultrows{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:17px}.resultrows div{background:#ffffff12;border:1px solid #ffffff1c;border-radius:10px;padding:10px}.resultrows small{display:block;color:#c9d9e8;font-size:11px}.resultrows b{font-size:17px}
+.notice{font-size:12px;color:var(--muted);margin:12px 2px 0}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+button{border:0;border-radius:10px;padding:10px 14px;font:700 13px inherit;cursor:pointer}
+.primary{background:var(--blue);color:#fff}.secondary{background:#e8f1f9;color:var(--navy)}.danger{background:#fff0f0;color:#a33838}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:0 16px 28px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.summary .stat:last-child{grid-column:span 2}.fields{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:390px){.fields{grid-template-columns:repeat(2,minmax(0,1fr))}.stat strong{font-size:23px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+ <div class="top"><div class="brand">📘 MIS NOTAS</div><span class="tag">SIMULADOR ACADÉMICO</span></div>
+ <h1>Tu período, bajo control.</h1><p>Editá tus calificaciones y mirá cómo cambia tu promedio en tiempo real. Tus cambios se guardan automáticamente en este dispositivo.</p>
+</div></header>
+<main class="wrap">
+ <section class="summary">
+  <div class="stat"><small>Promedio provisional</small><strong id="provisional">—</strong></div>
+  <div class="stat"><small>Porcentaje evaluado</small><strong id="evaluado">0%</strong></div>
+  <div class="stat"><small>Aporte a la definitiva</small><strong id="aporte">0.00 / 5.00</strong></div>
+ </section>
+ <div class="grid" id="gradeSections"></div>
+ <section class="grid">
+  <div class="panel">
+   <div class="panel-head"><h2>Asistencia</h2><span class="weight">Opcional</span></div>
+   <div class="fields">
+    <div class="field"><label for="faltasTotales">Faltas totales (F.T.)</label><input id="faltasTotales" type="number" min="0" step="1" value="0"></div>
+    <div class="field"><label for="faltasExcusadas">Faltas excusadas (F.E.)</label><input id="faltasExcusadas" type="number" min="0" step="1" value="0"></div>
+   </div>
+   <p class="notice">Las faltas se registran como dato informativo; no modifican la nota.</p>
+  </div>
+  <div class="result">
+   <h2>Resultado del período</h2><div class="big" id="finalGrade">—</div><p id="performance">Ingresá notas para calcular tu resultado.</p>
+   <div class="resultrows">
+    <div><small>Componentes con notas</small><b id="componentsDone">0 de 4</b></div>
+    <div><small>Escala</small><b>1.0 – 5.0</b></div>
+   </div>
+  </div>
+ </section>
+ <div class="actions">
+  <button class="secondary" id="reset">↺ Restaurar notas de la imagen</button>
+  <button class="danger" id="clear">Borrar todas las notas</button>
+ </div>
+ <p class="notice">Cálculo estimado: promedio simple dentro de cada componente y ponderación 35% + 35% + 10% + 20%. Si un componente está incompleto, el promedio provisional se calcula solo con los componentes que ya tienen al menos una nota.</p>
+</main>
+<footer>Mis Notas · Simulador personal · Los datos permanecen guardados en este navegador.</footer>
+<script>
+const groups=[
+ {name:"Conceptual",weight:35,items:["1.1","1.2","1.3","1.4","1.5","1.6"]},
+ {name:"Procedimental",weight:35,items:["2.1","2.2","2.3","2.4","2.5","2.6","2.7","2.8","2.9","2.10","2.11","2.12","2.13"]},
+ {name:"Actitudinal",weight:10,items:["3.1","3.2","3.3","3.4"]},
+ {name:"Prueba de período",weight:20,items:["4.1"]}
+];
+const defaults={"1.1":"4","1.3":"4","2.1":"4.5","2.2":"4.5","2.3":"4","2.4":"4","2.5":"5","3.1":"4.2","3.2":"4"};
+const STORAGE="mis-notas-simulador-v1";
+let data=load();
+function load(){try{return JSON.parse(localStorage.getItem(STORAGE))||{...defaults}}catch{return {...defaults}}}
+function save(){localStorage.setItem(STORAGE,JSON.stringify(data))}
+const sections=document.getElementById("gradeSections");
+groups.forEach((g,idx)=>{
+ const panel=document.createElement("section");panel.className="panel";
+ const head=document.createElement("div");head.className="panel-head";
+ head.innerHTML=`<h2>${g.name}</h2><span class="weight">${g.weight}%</span>`;panel.append(head);
+ const fields=document.createElement("div");fields.className="fields";
+ g.items.forEach(id=>{
+  const wrap=document.createElement("div");wrap.className="field";
+  const label=document.createElement("label");label.htmlFor="n"+id;label.textContent=id;
+  const input=document.createElement("input");input.id="n"+id;input.type="number";input.min="1";input.max="5";input.step="0.1";input.placeholder="—";input.inputMode="decimal";input.value=data[id]??"";
+  input.addEventListener("input",()=>{data[id]=input.value;save();calculate()});
+  wrap.append(label,input);fields.append(wrap);
+ });
+ panel.append(fields);
+ const foot=document.createElement("div");foot.className="panel-foot";
+ foot.innerHTML=`<span id="count${idx}">0 de ${g.items.length} notas ingresadas</span><span>Promedio <b id="avg${idx}">—</b></span>`;
+ panel.append(foot);sections.append(panel);
+});
+["faltasTotales","faltasExcusadas"].forEach(id=>{
+ const el=document.getElementById(id);el.value=data[id]??"0";el.addEventListener("input",()=>{data[id]=el.value;save()});
+});
+function valid(v){return v!==""&&Number.isFinite(Number(v))&&Number(v)>=1&&Number(v)<=5}
+function calculate(){
+ let totalWeight=0,weighted=0,done=0;
+ groups.forEach((g,i)=>{
+  const vals=g.items.map(id=>data[id]).filter(valid).map(Number);
+  const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+  document.getElementById("avg"+i).textContent=avg===null?"—":avg.toFixed(2);
+  document.getElementById("count"+i).textContent=`${vals.length} de ${g.items.length} notas ingresadas`;
+  if(avg!==null){totalWeight+=g.weight;weighted+=avg*g.weight;done++}
+ });
+ const provisional=totalWeight?weighted/totalWeight:null;
+ const contribution=weighted/100;
+ document.getElementById("provisional").textContent=provisional===null?"—":provisional.toFixed(2);
+ document.getElementById("evaluado").textContent=totalWeight+"%";
+ document.getElementById("aporte").textContent=contribution.toFixed(2)+" / 5.00";
+ document.getElementById("finalGrade").textContent=provisional===null?"—":provisional.toFixed(2);
+ document.getElementById("componentsDone").textContent=done+" de 4";
+ let label="Ingresá notas para calcular tu resultado.";
+ if(provisional!==null)label=provisional>=4.6?"Desempeño superior":provisional>=4?"Desempeño alto":provisional>=3?"Desempeño básico":"Desempeño bajo";
+ if(totalWeight<100&&provisional!==null)label+=" · Resultado provisional";
+ document.getElementById("performance").textContent=label;
+}
+document.getElementById("reset").addEventListener("click",()=>{data={...defaults,faltasTotales:"0",faltasExcusadas:"0"};save();location.reload()});
+document.getElementById("clear").addEventListener("click",()=>{if(confirm("¿Seguro que querés borrar todas las calificaciones?")){data={faltasTotales:"0",faltasExcusadas:"0"};save();location.reload()}});
+calculate();
+</script>
+</body></html>
